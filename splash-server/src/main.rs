@@ -9,7 +9,6 @@ use rocket::Outcome;
 use rocket::http::Status;
 use rocket::request::{self, Request, FromRequest};
 
-
 struct AuthUser(String);
 
 pub fn base64_decode(data: &str) -> Option<String> {
@@ -58,16 +57,27 @@ impl<'a, 'r> FromRequest<'a, 'r> for AuthUser {
     }
 }
 
-#[get("/sensitive")]
-fn sensitive(user: AuthUser) -> String {
+use std::fs::File;
+use std::io::prelude::*;
+
+#[post("/api/v1/open", data = "<state>")]
+fn set_open(user: AuthUser, state: String) -> String {
+    println!("{}", state);
+
+    let mut file = File::create("state.txt").unwrap();
+    file.write_all(state.as_bytes()).unwrap();
+
     return format!("Hello {}", user.0);
 }
 
-#[post("/api/v1/open")]
-fn index() -> &'static str {
-    "Hello, world!"
+#[get("/api/v1/open")]
+fn get_open() -> String {
+    let mut file = File::open("state.txt").unwrap();
+    let mut contents = String::new();
+    file.read_to_string(&mut contents).unwrap();
+    return contents;
 }
 
 fn main() {
-    rocket::ignite().mount("/", routes![sensitive]).launch();
+    rocket::ignite().mount("/", routes![set_open, get_open]).launch();
 }
