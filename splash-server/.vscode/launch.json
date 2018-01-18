@@ -5,17 +5,16 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "type": "lldb-mi",
-            "request": "launch",
-            "name": "Attach to PID",
-            "target": "2821",
-            "cwd": "${workspaceRoot}"
+            "type": "lldb",
+            "request": "attach",
+            "name": "Attach",
+            "program": "${workspaceRoot}/target/debug/splash-server"
         },
         {
             "name": "Debug",
             "type": "lldb-mi",
             "request": "launch",
-            "target": "target/debug/splash-server",
+            "target": "${workspaceRoot}/target/debug/splash-server",
             "cwd": "${workspaceRoot}"
         }
     ]
