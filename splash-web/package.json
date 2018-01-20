@@ -16,6 +16,7 @@
     "test": "ember test"
   },
   "devDependencies": {
+    "@typopro/web-quicksand": "^3.7.5",
     "@typopro/web-source-sans-pro": "^3.7.5",
     "broccoli-asset-rev": "^2.4.5",
     "broccoli-funnel": "^2.0.1",

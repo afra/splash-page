@@ -1,1 +1,15 @@
-<span><img src="logo.svg" /> <h1>A F R A</h1></span>
+<header local-class="header">
+  <img local-class="logo" src="logo.svg" />
+  <div local-class="title">AFRA</div>
+  <div local-class="status-area {{if open 'open' 'closed'}}">
+    {{#if open}}
+      <div local-class="status">Open</div>
+    {{else}}
+      <div local-class="status">Closed</div>
+      {{!-- <div local-class="status-second">Closed</div> --}}
+      <div local-class="eta">Open in 2h</div>
+    {{/if}}
+  </div>
+</header>
+
+{{outlet}}

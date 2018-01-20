@@ -1,0 +1,56 @@
+.header {
+  padding: 0 50px;
+  display: flex;
+  flex-direction: row;
+
+  background: #222;
+  color: white;
+}
+
+.logo {
+  height: 200px;
+  width: 200px;
+}
+
+.title {
+  flex-grow: 1;
+  text-align: center;
+  line-height: 200px;
+  font-size: 128px;
+}
+
+.status-area {
+  width: 200px;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  text-align: center;
+
+  border: 2px solid #0fd0f8;
+  margin: 30px 0;
+  box-shadow: 0 0 10px 2px #006eff, 0 0 10px 0px #006eff inset;
+  border-radius: 1.8rem;
+}
+
+.status {
+  font-size: 3rem;
+  font-weight: 300;
+}
+
+.closed .status {
+  color: #ff4488;
+  text-shadow: 1px 1px 5px #f00, -1px -1px 5px #f00;
+}
+
+.open .status {
+  color: #76fd07;
+  text-shadow: 1px 1px 5px #88c934, -1px -1px 5px #88c934;
+}
+
+.eta {
+  font-size: 1.2rem;
+
+  color: #0fd0f8;
+  font-weight: 100;
+  text-shadow: 1px 1px 5px #006eff, -1px -1px 5px #006eff;
+}

@@ -11,8 +11,8 @@ module.exports = function(defaults) {
     // Add options here
   });
 
-  const sourceSansPro = new Funnel('node_modules/@typopro/web-source-sans-pro', {
-    destDir: 'assets/source-sans-pro'
+  const sourceSansPro = new Funnel('node_modules/@typopro/', {
+    destDir: 'assets/typopro/'
   });
 
 	return new MergeTrees([app.toTree(), sourceSansPro]);
