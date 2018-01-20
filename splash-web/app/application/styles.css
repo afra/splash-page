@@ -2,9 +2,15 @@
   padding: 0 50px;
   display: flex;
   flex-direction: row;
+  font-family: "Beon";
 
   background: #222;
   color: white;
+}
+
+@font-face {
+  font-family:  'Beon';
+  src:          url('/Beon.otf') format("opentype");
 }
 
 .logo {
@@ -17,6 +23,10 @@
   text-align: center;
   line-height: 200px;
   font-size: 128px;
+  /* letter-spacing: 10px; */
+
+  color: #f8fbff;
+  text-shadow: 1px 1px 30px #a75fff, -1px -1px 30px #a75fff;
 }
 
 .status-area {
@@ -33,7 +43,7 @@
 }
 
 .status {
-  font-size: 3rem;
+  font-size: 2.5rem;
   font-weight: 300;
 }
 
@@ -49,6 +59,7 @@
 
 .eta {
   font-size: 1.2rem;
+  padding-top: 0.5rem;
 
   color: #0fd0f8;
   font-weight: 100;
