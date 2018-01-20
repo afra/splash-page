@@ -20,6 +20,10 @@
   dependencies:
     "@glimmer/di" "^0.2.0"
 
+"@typopro/web-source-sans-pro@^3.7.5":
+  version "3.7.5"
+  resolved "https://registry.yarnpkg.com/@typopro/web-source-sans-pro/-/web-source-sans-pro-3.7.5.tgz#e9e0862ebfbb85acddaa3468a6c5667e0b855567"
+
 abbrev@1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/abbrev/-/abbrev-1.1.1.tgz#f8f2c887ad10bf67f634f005b6987fed3179aac8"

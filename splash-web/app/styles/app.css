@@ -1,4 +1,10 @@
 html, body {
   padding: 0;
   margin: 0;
+  font-family: "TypoPRO Source Sans Pro";
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
 }
