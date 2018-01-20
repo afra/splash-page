@@ -50,6 +50,7 @@
 .open .status {
   color: #76fd07;
   text-shadow: 1px 1px 5px #88c934, -1px -1px 5px #88c934;
+  font-size: 3.3rem;
 }
 
 .eta {
