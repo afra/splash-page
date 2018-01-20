@@ -8,11 +8,6 @@
   color: white;
 }
 
-@font-face {
-  font-family:  'Beon';
-  src:          url('/Beon.otf') format("opentype");
-}
-
 .logo {
   height: 200px;
   width: 200px;
