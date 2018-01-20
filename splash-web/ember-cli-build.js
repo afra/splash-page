@@ -15,5 +15,11 @@ module.exports = function(defaults) {
     destDir: 'assets/typopro/'
   });
 
-	return new MergeTrees([app.toTree(), sourceSansPro]);
+  const beon = new Funnel('vendor/Beon/', {
+    destDir: 'assets/'
+  });
+
+  app.import('vendor/Beon/stylesheet.css')
+
+	return new MergeTrees([app.toTree(), sourceSansPro, beon]);
 };
