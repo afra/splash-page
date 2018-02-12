@@ -1,6 +1,6 @@
 table! {
     users (id) {
-        id -> Nullable<Integer>,
+        id -> Integer,
         name -> Text,
         pw_hash -> Text,
         salt -> Text,
