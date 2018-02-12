@@ -1,6 +1,6 @@
 CREATE TABLE users (
-  id SERIAL PRIMARY KEY,
+  id INTEGER PRIMARY KEY,
   name VARCHAR NOT NULL,
-  pw_hash BINARY NOT NULL,
-  salt BINARY NOT NULL
+  pw_hash BLOB NOT NULL,
+  salt BLOB NOT NULL
 )

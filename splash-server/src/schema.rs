@@ -1,8 +1,8 @@
 table! {
-    posts (id) {
-        id -> Integer,
-        title -> Text,
-        body -> Text,
-        published -> Bool,
+    users (id) {
+        id -> Nullable<Integer>,
+        name -> Text,
+        pw_hash -> Binary,
+        salt -> Binary,
     }
 }
