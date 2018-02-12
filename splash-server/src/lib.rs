@@ -9,12 +9,13 @@ extern crate pwhash;
 extern crate rand;
 
 
-mod database;
-mod models;
-mod schema;
+pub mod database;
+pub mod models;
+pub mod schema;
 mod security;
 
-pub use database::{create_user, establish_connection};
+// Export some database stuff
+pub use database::{create_user, establish_connection, list_users};
 
 
 /// Small utility function to do some basic base64 decoding

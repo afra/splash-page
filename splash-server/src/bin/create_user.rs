@@ -8,7 +8,6 @@ use structopt::StructOpt;
 
 #[derive(StructOpt, Debug)]
 struct Opt {
-
     #[structopt(short = "n", long = "user")]
     username: String,
 
@@ -18,7 +17,13 @@ struct Opt {
 
 fn main() {
     let opt = Opt::from_args();
-    
+
     let db = afra::establish_connection();
     afra::create_user(&db, &opt.username, &opt.password);
+
+    println!("=== Currently registered ===");
+    let users = afra::list_users(&db);
+    for usr in users {
+        println!("{} => {}", usr.id, usr.name);
+    }
 }

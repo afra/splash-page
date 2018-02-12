@@ -5,7 +5,7 @@ use dotenv::dotenv;
 use std::env;
 
 use pwhash::sha512_crypt;
-use security::generate_salt;
+use security as sec;
 
 use schema::users;
 use models::*;
@@ -18,8 +18,9 @@ pub fn establish_connection() -> SqliteConnection {
         .expect(&format!("Error connecting to {}", database_url))
 }
 
+/// FIXME: Check if a user of that name already exists
 pub fn create_user(conn: &SqliteConnection, username: &str, password: &str) -> usize {
-    let salt = generate_salt();
+    let salt = sec::generate_salt();
     let combo = format!("{}{}", password, salt);
     let hash = sha512_crypt::hash(&combo).unwrap();
 
@@ -33,4 +34,28 @@ pub fn create_user(conn: &SqliteConnection, username: &str, password: &str) -> u
         .values(&user)
         .execute(conn)
         .expect("Error creating new user!");
+}
+
+pub fn list_users(conn: &SqliteConnection) -> Vec<User> {
+    use schema::users::dsl::*;
+    return users
+        .load::<User>(conn)
+        .expect("Failed to load users from database!");
+}
+
+pub fn check_user_credentials(conn: &SqliteConnection, username: &str, password: &str) -> bool {
+    use schema::users::dsl::*;
+
+    let result = users
+        .filter(name.eq(username))
+        .limit(1)
+        .load::<User>(conn)
+        .expect("Failed to load user from database!");
+
+    let usr: &User = result.first().unwrap();
+
+    let combo = format!("{}{}", password, usr.salt);
+    let new_hash = sha512_crypt::hash(&combo).unwrap();
+
+    return usr.pw_hash == new_hash;
 }
