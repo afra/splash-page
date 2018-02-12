@@ -6,13 +6,19 @@ extern crate diesel;
 extern crate dotenv;
 extern crate base64;
 extern crate pwhash;
+extern crate rand;
 
 
 mod database;
 mod models;
 mod schema;
+mod security;
+
+pub use database::{create_user, establish_connection};
+
 
 /// Small utility function to do some basic base64 decoding
+#[deprecated]
 fn base64_decode(data: &str) -> Option<String> {
 
     let dec = base64::decode(data).unwrap();
@@ -20,6 +26,7 @@ fn base64_decode(data: &str) -> Option<String> {
 }
 
 /// Returns true if `key` is a valid API key string.
+#[deprecated]
 pub fn handle_user(key: &str) -> Option<String> {
     // TODO: Get authorised keys somehow
     // key == key[6..];
