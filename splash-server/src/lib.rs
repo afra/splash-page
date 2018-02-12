@@ -4,10 +4,12 @@
 #[macro_use]
 extern crate diesel;
 extern crate dotenv;
+extern crate r2d2;
+extern crate r2d2_diesel;
+
 extern crate base64;
 extern crate pwhash;
 extern crate rand;
-
 
 pub mod database;
 pub mod models;
@@ -15,7 +17,7 @@ pub mod schema;
 mod security;
 
 // Export some database stuff
-pub use database::{create_user, establish_connection, list_users};
+pub use database::*;
 
 
 /// Small utility function to do some basic base64 decoding
@@ -28,23 +30,12 @@ fn base64_decode(data: &str) -> Option<String> {
 
 /// Returns true if `key` is a valid API key string.
 #[deprecated]
-pub fn handle_user(key: &str) -> Option<String> {
-    // TODO: Get authorised keys somehow
-    // key == key[6..];
-
-    // FIXME: Don't panic!
-
+pub fn handle_user(key: &str) -> Option<(String, String)> {
     if !key.starts_with("Basic ") {
         return None;
     }
 
     let dec = base64_decode(&key[6..]).unwrap();
     let split: Vec<_> = dec.split(":").collect();
-
-    let (user, pw) = (split[0], split[1]);
-
-    return match (user, pw) {
-        ("afra", "1234") => Some(String::from(user)),
-        _ => None,
-    };
+    return Some((String::from(split[0]), String::from(split[1])));
 }

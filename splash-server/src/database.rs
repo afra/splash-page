@@ -1,6 +1,11 @@
 use diesel;
 use diesel::prelude::*;
 
+use r2d2;
+use diesel::sqlite::SqliteConnection;
+use r2d2_diesel::ConnectionManager;
+
+
 use dotenv::dotenv;
 use std::env;
 
@@ -10,12 +15,25 @@ use security as sec;
 use schema::users;
 use models::*;
 
+
+/// Our Sqlite connection pool 💦
+pub type Pool = r2d2::Pool<ConnectionManager<SqliteConnection>>;
+
+pub fn init_pool() -> Pool {
+    dotenv().ok();
+
+    let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+    println!("Database URL: {}", &database_url);
+    let manager = ConnectionManager::<SqliteConnection>::new(database_url);
+    r2d2::Pool::new(manager).expect("db pool")
+}
+
 pub fn establish_connection() -> SqliteConnection {
     dotenv().ok();
 
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
-    SqliteConnection::establish(&database_url)
-        .expect(&format!("Error connecting to {}", database_url))
+    return SqliteConnection::establish(&database_url)
+        .expect(&format!("Error connecting to {}", database_url));
 }
 
 /// FIXME: Check if a user of that name already exists
@@ -54,8 +72,7 @@ pub fn check_user_credentials(conn: &SqliteConnection, username: &str, password:
 
     let usr: &User = result.first().unwrap();
 
-    let combo = format!("{}{}", password, usr.salt);
-    let new_hash = sha512_crypt::hash(&combo).unwrap();
 
-    return usr.pw_hash == new_hash;
+    let combo = format!("{}{}", password, usr.salt);
+    return sha512_crypt::verify(&combo, &usr.pw_hash);
 }

@@ -2,13 +2,21 @@
 
 #![feature(plugin)]
 #![plugin(rocket_codegen)]
+extern crate diesel;
+extern crate r2d2;
+extern crate r2d2_diesel;
 extern crate rocket;
 
 extern crate splash_server as afra;
+use afra::database::*;
+use diesel::sqlite::SqliteConnection;
+use r2d2_diesel::ConnectionManager;
 
-use rocket::Outcome;
 use rocket::http::Status;
-use rocket::request::{self, Request, FromRequest};
+use rocket::request::{self, FromRequest};
+use rocket::{Outcome, Request, State};
+
+use std::ops::Deref;
 
 struct AuthUser(String);
 
@@ -16,17 +24,24 @@ impl<'a, 'r> FromRequest<'a, 'r> for AuthUser {
     type Error = ();
 
     fn from_request(request: &'a Request<'r>) -> request::Outcome<AuthUser, ()> {
+        let db = request.guard::<Conn>()?;
+
         let keys: Vec<_> = request.headers().get("Authorization").collect();
         if keys.len() != 1 {
             return Outcome::Failure((Status::BadRequest, ()));
         }
 
         let key = keys[0];
-
-        return match afra::handle_user(key) {
-            Some(user) => Outcome::Success(AuthUser(user)),
-            None => Outcome::Forward(()),
-        };
+        match afra::handle_user(key) {
+            None => return Outcome::Forward(()),
+            Some((user, pw)) => {
+                let b = afra::check_user_credentials(&*db, &user, &pw);
+                return match b {
+                    true => Outcome::Success(AuthUser(user)),
+                    false => Outcome::Forward(())
+                };
+            }
+        }
     }
 }
 
@@ -45,6 +60,7 @@ fn set_open(user: AuthUser, state: String) -> String {
 
 #[get("/api/v1/open")]
 fn get_open() -> String {
+    println!("Is it open...?");
     let mut file = File::open("state.txt").unwrap();
     let mut contents = String::new();
     file.read_to_string(&mut contents).unwrap();
@@ -52,5 +68,35 @@ fn get_open() -> String {
 }
 
 fn main() {
-    rocket::ignite().mount("/", routes![set_open, get_open]).launch();
+    // Assuming direct control...
+    let c = afra::init_pool();
+    rocket::ignite()
+        .manage(c)
+        .mount("/", routes![set_open, get_open])
+        .launch();
+}
+
+////////////////////////////////////////////
+
+pub struct Conn(pub r2d2::PooledConnection<ConnectionManager<SqliteConnection>>);
+
+impl Deref for Conn {
+    type Target = SqliteConnection;
+
+    #[inline(always)]
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl<'a, 'r> FromRequest<'a, 'r> for Conn {
+    type Error = ();
+
+    fn from_request(request: &'a Request<'r>) -> request::Outcome<Conn, ()> {
+        let pool = request.guard::<State<Pool>>()?;
+        match pool.get() {
+            Ok(conn) => Outcome::Success(Conn(conn)),
+            Err(_) => Outcome::Failure((Status::ServiceUnavailable, ())),
+        }
+    }
 }
