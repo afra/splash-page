@@ -7,6 +7,15 @@ extern crate dotenv;
 extern crate r2d2;
 extern crate r2d2_diesel;
 
+#[macro_use]
+extern crate serde_derive;
+
+#[macro_use]
+extern crate serde;
+
+#[macro_use]
+extern crate serde_json;
+
 extern crate base64;
 extern crate pwhash;
 extern crate rand;
