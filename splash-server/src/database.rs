@@ -75,7 +75,7 @@ pub fn check_user_credentials(conn: &PgConnection, username: &str, password: &st
     return sha512_crypt::verify(&combo, &usr.pw_hash);
 }
 
-pub fn maybe_login(conn: &SqliteConnection, username: &str, password: &str) -> Option<Session> {
+pub fn maybe_login(conn: &PgConnection, username: &str, password: &str) -> Option<Session> {
     use schema::users::dsl::users as users;
     use schema::users::dsl::name as user_name;
     use schema::sessions::dsl::sessions as sessions;
@@ -100,10 +100,11 @@ pub fn maybe_login(conn: &SqliteConnection, username: &str, password: &str) -> O
             user: usr.id,
         };
 
-        let f = diesel::insert_into(sessions)
+        let f: &Session = diesel::insert_into(sessions)
             .values(&newSession)
             .returning(session_id)
-            .get_result(conn);
+            .get_result(conn)
+            .unwrap();
 
         return None;
     } else {
