@@ -5,7 +5,6 @@ use r2d2;
 use diesel::sqlite::SqliteConnection;
 use r2d2_diesel::ConnectionManager;
 
-
 use dotenv::dotenv;
 use std::env;
 
@@ -14,7 +13,6 @@ use security as sec;
 
 use schema::users;
 use models::*;
-
 
 /// Our Sqlite connection pool 💦
 pub type Pool = r2d2::Pool<ConnectionManager<SqliteConnection>>;

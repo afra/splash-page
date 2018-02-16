@@ -6,6 +6,14 @@ extern crate diesel;
 extern crate r2d2;
 extern crate r2d2_diesel;
 extern crate rocket;
+extern crate rocket_contrib;
+
+
+#[macro_use]
+extern crate serde_derive;
+extern crate serde_json;
+extern crate serde;
+
 
 extern crate splash_server as afra;
 use afra::database::*;
@@ -47,6 +55,9 @@ struct AuthUser(String);
 
 use std::fs::File;
 use std::io::prelude::*;
+
+use rocket_contrib::Json;
+
 
 #[derive(Serialize, Deserialize)]
 struct NewUserViewModel {
