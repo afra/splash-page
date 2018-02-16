@@ -1,2 +1,4 @@
-target/
-state.txt
+node_modules
+dist
+tmp
+.env
