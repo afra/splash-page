@@ -2,7 +2,7 @@ use diesel;
 use diesel::prelude::*;
 
 use r2d2;
-use diesel::sqlite::SqliteConnection;
+use diesel::pg::PgConnection;
 use r2d2_diesel::ConnectionManager;
 
 use dotenv::dotenv;
@@ -15,27 +15,27 @@ use schema::users;
 use models::*;
 
 /// Our Sqlite connection pool 💦
-pub type Pool = r2d2::Pool<ConnectionManager<SqliteConnection>>;
+pub type Pool = r2d2::Pool<ConnectionManager<PgConnection>>;
 
 pub fn init_pool() -> Pool {
     dotenv().ok();
 
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
     println!("Database URL: {}", &database_url);
-    let manager = ConnectionManager::<SqliteConnection>::new(database_url);
+    let manager = ConnectionManager::<PgConnection>::new(database_url);
     r2d2::Pool::new(manager).expect("db pool")
 }
 
-pub fn establish_connection() -> SqliteConnection {
+pub fn establish_connection() -> PgConnection {
     dotenv().ok();
 
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
-    return SqliteConnection::establish(&database_url)
+    return PgConnection::establish(&database_url)
         .expect(&format!("Error connecting to {}", database_url));
 }
 
 /// FIXME: Check if a user of that name already exists
-pub fn create_user(conn: &SqliteConnection, username: &str, password: &str) -> usize {
+pub fn create_user(conn: &PgConnection, username: &str, password: &str) -> usize {
     let salt = sec::generate_salt();
     let combo = format!("{}{}", password, salt);
     let hash = sha512_crypt::hash(&combo).unwrap();
@@ -52,14 +52,14 @@ pub fn create_user(conn: &SqliteConnection, username: &str, password: &str) -> u
         .expect("Error creating new user!");
 }
 
-pub fn list_users(conn: &SqliteConnection) -> Vec<User> {
+pub fn list_users(conn: &PgConnection) -> Vec<User> {
     use schema::users::dsl::*;
     return users
         .load::<User>(conn)
         .expect("Failed to load users from database!");
 }
 
-pub fn check_user_credentials(conn: &SqliteConnection, username: &str, password: &str) -> bool {
+pub fn check_user_credentials(conn: &PgConnection, username: &str, password: &str) -> bool {
     use schema::users::dsl::*;
 
     let result = users

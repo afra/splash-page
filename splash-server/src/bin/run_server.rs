@@ -8,16 +8,14 @@ extern crate r2d2_diesel;
 extern crate rocket;
 extern crate rocket_contrib;
 
-
 #[macro_use]
 extern crate serde_derive;
 extern crate serde_json;
 extern crate serde;
 
-
 extern crate splash_server as afra;
 use afra::database::*;
-use diesel::sqlite::SqliteConnection;
+use diesel::pg::PgConnection;
 use r2d2_diesel::ConnectionManager;
 
 use rocket::http::Status;
@@ -105,10 +103,10 @@ fn main() {
 
 ////////////////////////////////////////////
 
-pub struct Conn(pub r2d2::PooledConnection<ConnectionManager<SqliteConnection>>);
+pub struct Conn(pub r2d2::PooledConnection<ConnectionManager<PgConnection>>);
 
 impl Deref for Conn {
-    type Target = SqliteConnection;
+    type Target = PgConnection;
 
     #[inline(always)]
     fn deref(&self) -> &Self::Target {

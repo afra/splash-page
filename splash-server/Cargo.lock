@@ -133,9 +133,10 @@ name = "diesel"
 version = "1.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
+ "bitflags 1.0.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "byteorder 1.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "diesel_derives 1.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "libsqlite3-sys 0.9.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "pq-sys 0.4.4 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -273,15 +274,6 @@ version = "0.2.36"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
-name = "libsqlite3-sys"
-version = "0.9.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-dependencies = [
- "pkg-config 0.3.9 (registry+https://github.com/rust-lang/crates.io-index)",
- "vcpkg 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)",
-]
-
-[[package]]
 name = "log"
 version = "0.3.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -364,9 +356,12 @@ version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
-name = "pkg-config"
-version = "0.3.9"
+name = "pq-sys"
+version = "0.4.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
+dependencies = [
+ "vcpkg 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)",
+]
 
 [[package]]
 name = "proc-macro2"
@@ -900,7 +895,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 "checksum lazy_static 0.2.11 (registry+https://github.com/rust-lang/crates.io-index)" = "76f033c7ad61445c5b347c7382dd1237847eb1bce590fe50365dcb33d546be73"
 "checksum lazy_static 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)" = "c8f31047daa365f19be14b47c29df4f7c3b581832407daabe6ae77397619237d"
 "checksum libc 0.2.36 (registry+https://github.com/rust-lang/crates.io-index)" = "1e5d97d6708edaa407429faa671b942dc0f2727222fb6b6539bf1db936e4b121"
-"checksum libsqlite3-sys 0.9.1 (registry+https://github.com/rust-lang/crates.io-index)" = "0e9eb7b8e152b6a01be6a4a2917248381875758250dc3df5d46caf9250341dda"
 "checksum log 0.3.9 (registry+https://github.com/rust-lang/crates.io-index)" = "e19e8d5c34a3e0e2223db8e060f9e8264aeeb5c5fc64a4ee9965c062211c024b"
 "checksum log 0.4.1 (registry+https://github.com/rust-lang/crates.io-index)" = "89f010e843f2b1a31dbd316b3b8d443758bc634bed37aabade59c686d644e0a2"
 "checksum matches 0.1.6 (registry+https://github.com/rust-lang/crates.io-index)" = "100aabe6b8ff4e4a7e32c1c13523379802df0772b82466207ac25b013f193376"
@@ -913,7 +907,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 "checksum pear 0.0.12 (registry+https://github.com/rust-lang/crates.io-index)" = "b5c2dabd6c1650d9bfac8e46be7b518b31c3885ab4412de1aca330938616c5bd"
 "checksum pear_codegen 0.0.12 (registry+https://github.com/rust-lang/crates.io-index)" = "df863bb78b3ee6b049278324eea8df6b2553a8db9a3504c0e32cfcc17bc8d18c"
 "checksum percent-encoding 1.0.1 (registry+https://github.com/rust-lang/crates.io-index)" = "31010dd2e1ac33d5b46a5b413495239882813e0369f8ed8a5e266f173602f831"
-"checksum pkg-config 0.3.9 (registry+https://github.com/rust-lang/crates.io-index)" = "3a8b4c6b8165cd1a1cd4b9b120978131389f64bdaf456435caa41e630edba903"
+"checksum pq-sys 0.4.4 (registry+https://github.com/rust-lang/crates.io-index)" = "4dfb5e575ef93a1b7b2a381d47ba7c5d4e4f73bff37cee932195de769aad9a54"
 "checksum proc-macro2 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)" = "d1cb7aaaa4bf022ec2b14ff2f2ba1643a22f3cee88df014a85e14b392282c61d"
 "checksum pwhash 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)" = "e13b76f7965ed95c1dfe1f5eb5607d12de34af86140212dde3defa15c8ccbe0f"
 "checksum quote 0.3.15 (registry+https://github.com/rust-lang/crates.io-index)" = "7a6e920b65c65f10b2ae65c831a81a073a89edd28c7cce89475bff467ab4167a"
