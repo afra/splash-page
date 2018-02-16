@@ -64,13 +64,19 @@ struct NewUserViewModel {
 }
 
 #[post("/api/v1/login", data = "<user>")]
-fn login(user: Json<NewUserViewModel>) -> String {
+fn login(user: Json<NewUserViewModel>, db: Conn) -> String {
+    // afra::create_user(&db, &opt.username, &opt.password);
     // println!("{}", state);
 
     // let mut file = File::create("state.txt").unwrap();
     // file.write_all(state.as_bytes()).unwrap();
-
-    return format!("Hello World");
+    // let user : String = user.name;
+    let b = afra::check_user_credentials(&*db, &user.name, &user.password);
+    if b {
+        return format!("Hello OK");
+    } else {
+        return format!("Hello Nope");
+    }
 }
 
 // #[post("/api/v1/open", data = "<state>")]
@@ -97,7 +103,7 @@ fn main() {
     let c = afra::init_pool();
     rocket::ignite()
         .manage(c)
-        .mount("/", routes![])
+        .mount("/", routes![login])
         .launch();
 }
 

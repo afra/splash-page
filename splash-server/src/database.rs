@@ -74,3 +74,39 @@ pub fn check_user_credentials(conn: &PgConnection, username: &str, password: &st
     let combo = format!("{}{}", password, usr.salt);
     return sha512_crypt::verify(&combo, &usr.pw_hash);
 }
+
+pub fn maybe_login(conn: &SqliteConnection, username: &str, password: &str) -> Option<Session> {
+    use schema::users::dsl::users as users;
+    use schema::users::dsl::name as user_name;
+    use schema::sessions::dsl::sessions as sessions;
+    use schema::sessions::dsl::id as session_id;
+    // use schema::sessions::dsl::*;
+
+    let result = users
+        .filter(user_name.eq(username))
+        .limit(1)
+        .load::<User>(conn)
+        .expect("Failed to load user from database!");
+
+    let usr: &User = result.first().unwrap();
+
+
+    let combo = format!("{}{}", password, usr.salt);
+    let ok = sha512_crypt::verify(&combo, &usr.pw_hash);
+
+    if ok {
+        let newSession = NewSession {
+            token: "1234",
+            user: usr.id,
+        };
+
+        let f = diesel::insert_into(sessions)
+            .values(&newSession)
+            .returning(session_id)
+            .get_result(conn);
+
+        return None;
+    } else {
+        return None;
+    }
+}
