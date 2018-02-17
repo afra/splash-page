@@ -13,7 +13,8 @@
       "skipLibCheck": true,
       "sourceRoot": ".",
       "noUnusedLocals": true,
-      "baseUrl": "."
+      "baseUrl": ".",
+      "experimentalDecorators": true
   },
   "include": [
     "lib/**/*",
