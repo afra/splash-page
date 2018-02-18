@@ -75,6 +75,7 @@ export default class TypeormAdapter extends ORMAdapter {
 
   setAttribute<M extends ModelRegistry[keyof ModelRegistry], A extends keyof M, V extends M[A]>(model: Model | M, attribute: A, value: V): boolean {
     (<M>model)[attribute] = value;
+    return true;
   }
 
   deleteAttribute(model: Model, attribute: string): boolean {
