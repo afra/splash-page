@@ -4,7 +4,7 @@ import ApplicationAction from '../application';
 
 export default class DestroySpaceEvent extends ApplicationAction {
 
-  adapter = lookup<TypeOrmAdapter>('adapter:space-event')
+  adapter = lookup<TypeOrmAdapter>('orm-adapter:application')
 
   async respond({ params } : any) {
     const spaceEvent = await this.adapter.find('space-event', params.id);

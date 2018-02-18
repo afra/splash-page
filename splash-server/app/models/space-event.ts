@@ -7,11 +7,11 @@ import {
 } from 'typeorm';
 
 @Entity()
-export class SpaceEvent {
+export default class SpaceEvent {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column('boolean')
   open: boolean;
 
   @CreateDateColumn()

@@ -4,7 +4,7 @@ import ApplicationAction from '../application';
 
 export default class CreateSpaceEvent extends ApplicationAction {
 
-  adapter = lookup<TypeOrmAdapter>('adapter:space-event')
+  adapter = lookup<TypeOrmAdapter>('orm-adapter:application')
 
   async respond({ body } : any) {
     const spaceEvent = this.adapter.buildRecord('space-event', body);

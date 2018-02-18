@@ -4,10 +4,10 @@ import ApplicationAction from '../application';
 
 export default class ListSpaceEvents extends ApplicationAction {
 
-  adapter = lookup<TypeOrmAdapter>('adapter:space-event')
+  adapter = lookup<TypeOrmAdapter>('orm-adapter:application')
 
   async respond({ params } : any) {
-    return await this.adapter.query('space-event', params); // Todo: is this an SQL-injection?
+    return await this.adapter.query('space-event'); // Todo: is this an SQL-injection?
   }
 
 }

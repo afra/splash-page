@@ -7,6 +7,7 @@ import {
 import {
   ObjectLiteral,
   getManager,
+  createConnection,
 } from 'typeorm';
 import { ModelRegistry, Model } from "denali-typeorm";
 
