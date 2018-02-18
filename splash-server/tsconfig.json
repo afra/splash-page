@@ -28,6 +28,6 @@
     "config/**/*",
     "test/**/*"
   ],
-  "exclude": [ "blueprints/*/files/**" ],
+  "exclude": [ "blueprints/*/files/**" ]
 }
 
