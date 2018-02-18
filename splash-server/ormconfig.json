@@ -5,5 +5,5 @@
   "username": "postgres",
   "password": "postgres",
   "database": "splash-page",
-  "entities": ["dist/app/models/*{.ts,.js}"]
+  "entities": ["dist/app/entities/*{.ts,.js}"]
 }

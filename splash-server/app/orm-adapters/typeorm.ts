@@ -7,7 +7,6 @@ import {
 import {
   ObjectLiteral,
   getManager,
-  createConnection,
 } from 'typeorm';
 import { ModelRegistry, Model } from "denali-typeorm";
 
@@ -26,7 +25,10 @@ export default class TypeormAdapter extends ORMAdapter {
   }
 
   private lookupModelClass<K extends keyof ModelRegistry>(type : K) : { new(...args : any[]) : ModelRegistry[K] } {
-    return lookup(`model:${type}`);
+    const exports = lookup(`entity:${type}`);
+
+    // ToDo: check class
+    return exports[Object.keys(exports)[0]]
   }
 
   async find<K extends keyof ModelRegistry>(type: K, id: any, options?: any) {

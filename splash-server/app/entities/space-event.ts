@@ -6,8 +6,16 @@ import {
   CreateDateColumn
 } from 'typeorm';
 
+{
+  const fileSymbol = Symbol.for('/full/path/to/file');
+  if(global[fileSymbol]) {
+    throw "double loading file";
+  }
+  global[fileSymbol] = true;
+}
+
 @Entity()
-export default class SpaceEvent {
+export class SpaceEvent {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -17,6 +25,8 @@ export default class SpaceEvent {
   @CreateDateColumn()
   createdAt: Date;
 }
+
+global.SpaceEvent = SpaceEvent;
 
 declare module "denali-typeorm" {
   interface Model {}

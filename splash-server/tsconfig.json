@@ -26,7 +26,8 @@
     "blueprints/*/index.ts",
     "commands/**/*",
     "config/**/*",
-    "test/**/*"
+    "test/**/*",
+    "debug.ts"
   ],
   "exclude": [ "blueprints/*/files/**" ]
 }
