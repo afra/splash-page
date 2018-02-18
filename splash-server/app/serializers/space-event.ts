@@ -2,7 +2,7 @@ import ApplicationSerializer from './application';
 
 export default class SpaceEventSerializer extends ApplicationSerializer {
 
-  attributes = [];
+  attributes : string[] = [];
 
   relationships = {};
 

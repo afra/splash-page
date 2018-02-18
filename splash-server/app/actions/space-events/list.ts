@@ -1,10 +1,13 @@
+import {lookup} from 'denali';
+import TypeOrmAdapter from '../../orm-adapters/typeorm';
 import ApplicationAction from '../application';
-import SpaceEvent from '../../models/space-event';
 
 export default class ListSpaceEvents extends ApplicationAction {
 
-  async respond() {
-    return await SpaceEvent.all();
+  adapter = lookup<TypeOrmAdapter>('adapter:space-event')
+
+  async respond({ params } : any) {
+    return await this.adapter.query('space-event', params); // Todo: is this an SQL-injection?
   }
 
 }

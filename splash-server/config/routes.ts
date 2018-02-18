@@ -1,4 +1,4 @@
-export default function drawRoutes(router) {
+export default function drawRoutes(router : any) {
 
   router.get('/', 'index');
 

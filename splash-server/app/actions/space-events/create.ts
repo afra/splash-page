@@ -1,11 +1,14 @@
+import {lookup} from 'denali';
+import TypeOrmAdapter from '../../orm-adapters/typeorm';
 import ApplicationAction from '../application';
-import SpaceEvent from '../../models/space-event';
 
 export default class CreateSpaceEvent extends ApplicationAction {
 
-  async respond({ body }) {
-    let spaceEvent = await SpaceEvent.create(body);
+  adapter = lookup<TypeOrmAdapter>('adapter:space-event')
+
+  async respond({ body } : any) {
+    const spaceEvent = this.adapter.buildRecord('space-event', body);
+    await this.adapter.saveRecord(spaceEvent);
     this.render(201, spaceEvent);
   }
-
 }

@@ -1,33 +1,26 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, getConnection } from 'typeorm';
-import { /*  attr, hasOne, hasMany */ } from 'denali';
-import ApplicationModel from './application';
+import "reflect-metadata";
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  CreateDateColumn
+} from 'typeorm';
 
+@Entity()
 export class SpaceEvent {
   @PrimaryGeneratedColumn()
   id: number;
+
+  @Column()
+  open: boolean;
+
+  @CreateDateColumn()
+  createdAt: Date;
 }
 
-// export default infer(SpaceEvent)
-
-// async function infer(cls : any) {
-//   const connenv = {
-//     "type": "postgres",
-//     "host": "localhost",
-//     "port": 5432,
-//     "username": "postgres",
-//     "password": "postgres",
-//     "database": "splash-page",
-//     "entities": ["dist/app/models/*{.ts,.js}"]
-//   };
-
-//   debugger;
-
-//   const conn = createConnection(connenv);
-//   console.log('hi');
-// }
-
-// export default class SpaceEvent extends ApplicationModel {
-
-//   static schema = {};
-
-// }
+declare module "denali-typeorm" {
+  interface Model {}
+  interface ModelRegistry {
+    'space-event': SpaceEvent;
+  }
+}

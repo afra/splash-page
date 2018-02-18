@@ -1,12 +1,15 @@
+import { lookup } from 'denali';
+import ApplicationAdapter from '../../orm-adapters/typeorm';
 import ApplicationAction from '../application';
-import SpaceEvent from '../../models/space-event';
 
 export default class UpdateSpaceEvent extends ApplicationAction {
 
-  async respond({ params, body }) {
-    let spaceEvent = await SpaceEvent.find(params.id);
-    Object.assign(spaceEvent, body);
-    return await spaceEvent.save();
-  }
+  adapter = lookup<ApplicationAdapter>('adapter:space-event')
 
+  async respond({ params, body } : any) {
+    const spaceEvent = await this.adapter.find('space-event', params.id);
+    Object.assign(spaceEvent, body);
+    await this.adapter.saveRecord(spaceEvent);
+    return spaceEvent;
+  }
 }

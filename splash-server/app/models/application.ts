@@ -1,7 +1,7 @@
-import { Model } from 'denali';
+// import { Model } from 'denali';
 
-export default class ApplicationModel extends Model {
+// export default class ApplicationModel extends Model {
 
-  static abstract = true;
+//   static abstract = true;
 
-}
+// }
