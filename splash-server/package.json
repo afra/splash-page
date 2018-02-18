@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "bluebird": "^3.5.1",
-    "denali": "0.0.x",
+    "denali": "https://github.com/luxferresum/denali.git#debug-no-brk",
     "denali-cli": "0.0.x",
     "denali-typescript": "^0.0.11",
     "lodash": "^4.17.4",
