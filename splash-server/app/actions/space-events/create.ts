@@ -7,7 +7,7 @@ export default class CreateSpaceEvent extends ApplicationAction {
   adapter = lookup<TypeOrmAdapter>('orm-adapter:application')
 
   async respond({ body } : any) {
-    const spaceEvent = this.adapter.buildRecord('space-event', body);
+    const spaceEvent = await this.adapter.buildRecord('space-event', body);
     await this.adapter.saveRecord(spaceEvent);
     this.render(201, spaceEvent);
   }

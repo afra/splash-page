@@ -1,3 +1,6 @@
-import { JSONParser } from 'denali';
+import {
+  JSONAPIParser,
+} from 'denali';
 
-export default JSONParser;
+export default class ApplicationParser extends JSONAPIParser {
+};

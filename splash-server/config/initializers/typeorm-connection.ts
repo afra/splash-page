@@ -10,12 +10,13 @@ export default {
   name: 'typeorm-connection',
 
   async initialize(app): Promise<void> {
-    container.setOption('entities', 'singleton', false);
+    container.setOption('entity', 'singleton', false);
 
     // override the entities with classes loaded by denali
     // https://github.com/denali-js/denali/issues/430
     const options = await getConnectionOptions();
-    const entityLookups = container.lookupAll('entities');
+    const entityLookups = container.lookupAll('entity');
+    console.log(entityLookups);
 
     const entities : ({new(): any})[] = [];
 
