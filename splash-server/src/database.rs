@@ -70,15 +70,14 @@ pub fn check_user_credentials(conn: &PgConnection, username: &str, password: &st
 
     let usr: &User = result.first().unwrap();
 
-
     let combo = format!("{}{}", password, usr.salt);
     return sha512_crypt::verify(&combo, &usr.pw_hash);
 }
 
 pub fn maybe_login(conn: &PgConnection, username: &str, password: &str) -> Option<Session> {
-    use schema::users::dsl::users as users;
+    use schema::users::dsl::users;
     use schema::users::dsl::name as user_name;
-    use schema::sessions::dsl::sessions as sessions;
+    use schema::sessions::dsl::sessions;
     use schema::sessions::dsl::id as session_id;
     // use schema::sessions::dsl::*;
 
@@ -90,20 +89,18 @@ pub fn maybe_login(conn: &PgConnection, username: &str, password: &str) -> Optio
 
     let usr: &User = result.first().unwrap();
 
-
     let combo = format!("{}{}", password, usr.salt);
     let ok = sha512_crypt::verify(&combo, &usr.pw_hash);
 
     if ok {
-        let newSession = NewSession {
+        let new_session = NewSession {
             token: "1234",
             user: usr.id,
         };
 
-        let f: &Session = diesel::insert_into(sessions)
-            .values(&newSession)
-            .returning(session_id)
-            .get_result(conn)
+        let f: Vec<Session> = diesel::insert_into(sessions)
+            .values(&new_session)
+            .get_results(conn)
             .unwrap();
 
         return None;
