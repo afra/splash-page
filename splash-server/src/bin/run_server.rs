@@ -37,6 +37,13 @@ impl Deref for AuthUser {
     }
 }
 
+#[derive(Serialize, Deserialize)]
+struct NewUserViewModel {
+    name: String,
+    password: String,
+}
+
+
 impl<'a, 'r> FromRequest<'a, 'r> for AuthUser {
     type Error = ();
 
@@ -49,27 +56,19 @@ impl<'a, 'r> FromRequest<'a, 'r> for AuthUser {
         }
 
         let key = keys[0];
-        return match afra::get_user_with_token(&*db, key.to_string()) {
+        if !key.starts_with("Token ") {
+            return Outcome::Failure((Status::BadRequest, ()));
+        }
+
+        return match afra::get_user_with_token(&*db, key[6..].to_string()) {
             Some(user) => Outcome::Success(AuthUser(user)),
             None => Outcome::Forward(()),
         };
     }
 }
 
-#[derive(Serialize, Deserialize)]
-struct NewUserViewModel {
-    name: String,
-    password: String,
-}
-
 #[post("/api/v1/login", data = "<user>")]
 fn login(user: Json<NewUserViewModel>, db: Conn) -> Result<String, Failure> {
-    // afra::create_user(&db, &opt.username, &opt.password);
-    // println!("{}", state);
-
-    // let mut file = File::create("state.txt").unwrap();
-    // file.write_all(state.as_bytes()).unwrap();
-    // let user : String = user.name;
     return match afra::maybe_login(&*db, &user.name, &user.password) {
         Some(id) => Ok(format!("{}", id)),
         None => Err(Failure::from(Status::Unauthorized)),
