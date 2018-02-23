@@ -15,6 +15,7 @@ extern crate serde_json;
 
 extern crate splash_server as afra;
 use afra::database::*;
+use afra::models::User;
 use diesel::pg::PgConnection;
 use r2d2_diesel::ConnectionManager;
 
@@ -28,32 +29,32 @@ use std::ops::Deref;
 use std::fs::File;
 use std::io::prelude::*;
 
-struct AuthUser(String);
+struct AuthUser(User);
+impl Deref for AuthUser {
+    type Target = User;
+    fn deref(&self) -> &User {
+        return &self.0;
+    }
+}
 
-// impl<'a, 'r> FromRequest<'a, 'r> for AuthUser {
-//     type Error = ();
+impl<'a, 'r> FromRequest<'a, 'r> for AuthUser {
+    type Error = ();
 
-//     fn from_request(request: &'a Request<'r>) -> request::Outcome<AuthUser, ()> {
-//         let db = request.guard::<Conn>()?;
+    fn from_request(request: &'a Request<'r>) -> request::Outcome<AuthUser, ()> {
+        let db = request.guard::<Conn>()?;
 
-//         let keys: Vec<_> = request.headers().get("Authorization").collect();
-//         if keys.len() != 1 {
-//             return Outcome::Failure((Status::BadRequest, ()));
-//         }
+        let keys: Vec<_> = request.headers().get("Authorization").collect();
+        if keys.len() != 1 {
+            return Outcome::Failure((Status::BadRequest, ()));
+        }
 
-//         let key = keys[0];
-//         match afra::handle_user(key) {
-//             None => return Outcome::Forward(()),
-//             Some((user, pw)) => {
-//                 let b = afra::check_user_credentials(&*db, &user, &pw);
-//                 return match b {
-//                     true => Outcome::Success(AuthUser(user)),
-//                     false => Outcome::Forward(())
-//                 };
-//             }
-//         }
-//     }
-// }
+        let key = keys[0];
+        return match afra::get_user_with_token(&*db, key.to_string()) {
+            Some(user) => Outcome::Success(AuthUser(user)),
+            None => Outcome::Forward(()),
+        };
+    }
+}
 
 #[derive(Serialize, Deserialize)]
 struct NewUserViewModel {
@@ -75,15 +76,15 @@ fn login(user: Json<NewUserViewModel>, db: Conn) -> Result<String, Failure> {
     };
 }
 
-// #[post("/api/v1/open", data = "<state>")]
-// fn set_open(user: AuthUser, state: String) -> String {
-//     println!("{}", state);
+#[post("/api/v1/open", data = "<state>")]
+fn set_open(user: AuthUser, state: String) -> String {
+    println!("{}", state);
 
-//     let mut file = File::create("state.txt").unwrap();
-//     file.write_all(state.as_bytes()).unwrap();
+    let mut file = File::create("state.txt").unwrap();
+    file.write_all(state.as_bytes()).unwrap();
 
-//     return format!("Hello {}", user.0);
-// }
+    return format!("Hello {}", user.name);
+}
 
 // #[get("/api/v1/open")]
 // fn get_open() -> String {
@@ -100,7 +101,7 @@ fn main() {
     println!("Ping");
     rocket::ignite()
         .manage(c)
-        .mount("/", routes![login])
+        .mount("/", routes![login, set_open])
         .launch();
 }
 
