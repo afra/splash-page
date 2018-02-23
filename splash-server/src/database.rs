@@ -3,7 +3,10 @@ use diesel::prelude::*;
 
 use r2d2;
 use diesel::pg::PgConnection;
+use diesel::BelongingToDsl;
 use r2d2_diesel::ConnectionManager;
+
+use constant_time_eq::constant_time_eq;
 
 use dotenv::dotenv;
 use std::env;
@@ -36,7 +39,7 @@ pub fn establish_connection() -> PgConnection {
 
 /// FIXME: Check if a user of that name already exists
 pub fn create_user(conn: &PgConnection, username: &str, password: &str) -> usize {
-    let salt = sec::generate_salt();
+    let salt = sec::generate_random_string();
     let combo = format!("{}{}", password, salt);
     let hash = sha512_crypt::hash(&combo).unwrap();
 
@@ -59,27 +62,61 @@ pub fn list_users(conn: &PgConnection) -> Vec<User> {
         .expect("Failed to load users from database!");
 }
 
-pub fn check_user_credentials(conn: &PgConnection, username: &str, password: &str) -> bool {
-    use schema::users::dsl::*;
+// pub fn check_user_credentials(conn: &PgConnection, username: &str, password: &str) -> bool {
+//     use schema::users::dsl::*;
 
-    let result = users
-        .filter(name.eq(username))
+//     let result = users
+//         .filter(name.eq(username))
+//         .limit(1)
+//         .load::<User>(conn)
+//         .expect("Failed to load user from database!");
+
+//     let usr: &User = result.first().unwrap();
+
+//     let combo = format!("{}{}", password, usr.salt);
+//     return sha512_crypt::verify(&combo, &usr.pw_hash);
+// }
+
+pub fn get_user_with_token(conn: &PgConnection, token: String) -> Option<User> {
+    use schema::users::dsl::users;
+    use schema::users::dsl::id;
+    use schema::sessions::dsl::sessions;
+    use schema::sessions::dsl::id as session_id;
+
+    let split = token.split("::").collect::<Vec<&str>>();
+    if split.len() != 2 {
+        return None;
+    }
+
+    let user_id = split[0];
+    let token = split[1];
+    let i_id = user_id.parse::<i32>().unwrap();
+
+    let sess = sessions
+        .filter(session_id.eq(i_id))
+        .limit(1)
+        .load::<Session>(conn)
+        .expect("Failed to load user from database!");
+    let session = sess.first().unwrap();
+
+    if !constant_time_eq(token.as_bytes(), &session.token.as_bytes()) {
+        return None;
+    }
+
+    let u = users
+        .filter(id.eq(&session.user))
         .limit(1)
         .load::<User>(conn)
-        .expect("Failed to load user from database!");
+        .expect("Fuck");
 
-    let usr: &User = result.first().unwrap();
-
-    let combo = format!("{}{}", password, usr.salt);
-    return sha512_crypt::verify(&combo, &usr.pw_hash);
+    return Some(u.first().unwrap().clone());
 }
 
-pub fn maybe_login(conn: &PgConnection, username: &str, password: &str) -> Option<Session> {
+pub fn maybe_login(conn: &PgConnection, username: &str, password: &str) -> Option<String> {
     use schema::users::dsl::users;
     use schema::users::dsl::name as user_name;
     use schema::sessions::dsl::sessions;
     use schema::sessions::dsl::id as session_id;
-    // use schema::sessions::dsl::*;
 
     let result = users
         .filter(user_name.eq(username))
@@ -87,24 +124,28 @@ pub fn maybe_login(conn: &PgConnection, username: &str, password: &str) -> Optio
         .load::<User>(conn)
         .expect("Failed to load user from database!");
 
-    let usr: &User = result.first().unwrap();
+    let usr: &User = match result.first() {
+        Some(u) => u,
+        None => return None,
+    };
 
     let combo = format!("{}{}", password, usr.salt);
-    let ok = sha512_crypt::verify(&combo, &usr.pw_hash);
-
-    if ok {
-        let new_session = NewSession {
-            token: "1234",
-            user: usr.id,
-        };
-
-        let f: Vec<Session> = diesel::insert_into(sessions)
-            .values(&new_session)
-            .get_results(conn)
-            .unwrap();
-
-        return None;
-    } else {
+    if !sha512_crypt::verify(&combo, &usr.pw_hash) {
         return None;
     }
+
+    let token = sec::generate_random_string();
+    let new_session = NewSession {
+        token: &token.clone(),
+        user: usr.id,
+    };
+
+    let id: Vec<i32> = diesel::insert_into(sessions)
+        .values(&new_session)
+        .returning(session_id)
+        .get_results(conn)
+        .unwrap();
+
+    let concat = format!("{}::{}", *id.first().unwrap(), token);
+    return Some(concat);
 }

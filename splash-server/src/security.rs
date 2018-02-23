@@ -10,7 +10,7 @@ pub fn base64_encode(data: &Vec<u8>) -> String {
 
 
 /// Random data, encoded as base64 in a string
-pub fn generate_salt() -> String {
+pub fn generate_random_string() -> String {
     let mut vec = Vec::new();
 
     let mut random_data = [0u8; 1024];
