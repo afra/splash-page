@@ -116,7 +116,10 @@ pub fn get_user_with_token(conn: &PgConnection, token: String) -> Option<User> {
         .limit(1)
         .load::<Session>(conn)
         .expect("Failed to load user from database!");
-    let session = sess.first().unwrap();
+    let session = match sess.first() {
+        Some(s) => s,
+        None => return None,
+    };
 
     if !constant_time_eq(token.as_bytes(), &session.token.as_bytes()) {
         return None;
