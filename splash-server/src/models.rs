@@ -1,5 +1,6 @@
-use schema::users;
-use schema::sessions;
+use std::time::SystemTime;
+use schema::*;
+
 
 #[derive(Queryable, Clone)]
 pub struct User {
@@ -29,4 +30,17 @@ pub struct Session {
 pub struct NewSession<'a> {
     pub token: &'a str,
     pub user: i32,
+}
+
+#[derive(Queryable)]
+pub struct Event {
+    pub id: i32,
+    pub open: bool,
+    pub created_at: SystemTime,
+}
+
+#[derive(Insertable)]
+#[table_name = "space_events"]
+pub struct NewEvent {
+    pub open: bool
 }

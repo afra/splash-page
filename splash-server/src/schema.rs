@@ -1,23 +1,26 @@
 table! {
     sessions (id) {
-        id -> Integer,
-        token -> Text,
-        user -> Integer,
+        id -> Int4,
+        token -> Varchar,
+        user -> Int4,
+    }
+}
+
+table! {
+    space_events (id) {
+        id -> Int4,
+        open -> Bool,
+        created_at -> Timestamp,
     }
 }
 
 table! {
     users (id) {
-        id -> Integer,
-        name -> Text,
-        pw_hash -> Text,
-        salt -> Text,
+        id -> Int4,
+        name -> Varchar,
+        pw_hash -> Varchar,
+        salt -> Varchar,
     }
 }
 
 joinable!(sessions -> users (user));
-
-allow_tables_to_appear_in_same_query!(
-    sessions,
-    users,
-);

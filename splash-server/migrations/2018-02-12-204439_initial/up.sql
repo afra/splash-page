@@ -15,5 +15,5 @@ CREATE TABLE sessions (
 CREATE TABLE space_events (
   "id" SERIAL PRIMARY KEY,
   "open" BOOLEAN NOT NULL,
-  "created_at" TIMESTAMP NOT NULL
+  "created_at" TIMESTAMP DEFAULT current_timestamp
 );

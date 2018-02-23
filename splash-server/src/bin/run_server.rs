@@ -22,7 +22,8 @@ use r2d2_diesel::ConnectionManager;
 use rocket_contrib::Json;
 use rocket::http::Status;
 use rocket::request::{self, FromRequest};
-use rocket::{Outcome, Request, State};
+use rocket::{Outcome, Request, Response, State};
+use rocket::response::status::*;
 use rocket::response::Failure;
 
 use std::ops::Deref;
@@ -42,7 +43,6 @@ struct NewUserViewModel {
     name: String,
     password: String,
 }
-
 
 impl<'a, 'r> FromRequest<'a, 'r> for AuthUser {
     type Error = ();
@@ -75,24 +75,18 @@ fn login(user: Json<NewUserViewModel>, db: Conn) -> Result<String, Failure> {
     };
 }
 
+
 #[post("/api/v1/open", data = "<state>")]
-fn set_open(user: AuthUser, state: String) -> String {
-    println!("{}", state);
-
-    let mut file = File::create("state.txt").unwrap();
-    file.write_all(state.as_bytes()).unwrap();
-
-    return format!("Hello {}", user.name);
+fn set_open(_user: AuthUser, state: Json<bool>, db: Conn) -> Custom<()> {
+    return match afra::create_new_event(&*db, *state.deref()) {
+        _ => Custom(Status::NoContent, ())
+    };
 }
 
-// #[get("/api/v1/open")]
-// fn get_open() -> String {
-//     println!("Is it open...?");
-//     let mut file = File::open("state.txt").unwrap();
-//     let mut contents = String::new();
-//     file.read_to_string(&mut contents).unwrap();
-//     return contents;
-// }
+#[get("/api/v1/open")]
+fn get_open(db: Conn) -> String {
+    return format!("{}", afra::get_current_state(&*db));
+}
 
 fn main() {
     // Assuming direct control...

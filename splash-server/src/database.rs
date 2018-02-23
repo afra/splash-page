@@ -62,20 +62,39 @@ pub fn list_users(conn: &PgConnection) -> Vec<User> {
         .expect("Failed to load users from database!");
 }
 
-// pub fn check_user_credentials(conn: &PgConnection, username: &str, password: &str) -> bool {
-//     use schema::users::dsl::*;
+/// Get the current state of the hackerspace
+pub fn get_current_state(conn: &PgConnection) -> bool {
+    use schema::space_events::dsl::*;
+    let latest_vec = space_events
+        .order(id.desc())
+        .limit(1)
+        .load::<Event>(conn)
+        .expect("Failed to load user from database!");
+    let latest = latest_vec.first().unwrap();
+    return latest.open;
+}
 
-//     let result = users
-//         .filter(name.eq(username))
-//         .limit(1)
-//         .load::<User>(conn)
-//         .expect("Failed to load user from database!");
+pub fn create_new_event(conn: &PgConnection, state: bool) -> Option<bool> {
+    use schema::space_events::dsl::*;
 
-//     let usr: &User = result.first().unwrap();
+    /* Check what current state is */
+    let latest_vec = space_events
+        .order(id.desc())
+        .limit(1)
+        .load::<Event>(conn)
+        .expect("Failed to load user from database!");
+    let latest = latest_vec.first().unwrap();
+    if latest.open {
+        return None;
+    }
 
-//     let combo = format!("{}{}", password, usr.salt);
-//     return sha512_crypt::verify(&combo, &usr.pw_hash);
-// }
+    let event = NewEvent { open: state };
+    diesel::insert_into(space_events)
+        .values(&event)
+        .execute(conn)
+        .expect("Error creating new Afra space event!");
+    return Some(state);
+}
 
 pub fn get_user_with_token(conn: &PgConnection, token: String) -> Option<User> {
     use schema::users::dsl::users;
