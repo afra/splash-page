@@ -11,3 +11,9 @@ CREATE TABLE sessions (
   "user" SERIAL NOT NULL,
   FOREIGN KEY ("user") REFERENCES users("id")
 );
+
+CREATE TABLE space_events (
+  "id" SERIAL PRIMARY KEY,
+  "open" BOOLEAN NOT NULL,
+  "created_at" TIMESTAMP NOT NULL
+);
