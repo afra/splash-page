@@ -7,6 +7,7 @@ extern crate r2d2;
 extern crate r2d2_diesel;
 extern crate rocket;
 extern crate rocket_contrib;
+extern crate chrono;
 
 extern crate serde;
 #[macro_use]
@@ -116,7 +117,6 @@ fn get_eta(db: Conn) -> String {
 }
 
 fn main() {
-
     // Assuming direct control...
     let c = afra::init_pool();
     rocket::ignite()

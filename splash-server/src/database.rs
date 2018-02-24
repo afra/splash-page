@@ -5,15 +5,17 @@ use r2d2;
 use diesel::pg::PgConnection;
 use diesel::BelongingToDsl;
 use r2d2_diesel::ConnectionManager;
-use chrono::NaiveDateTime;
 
 use constant_time_eq::constant_time_eq;
+use chrono::prelude::*;
 
 use dotenv::dotenv;
 use std::env;
 
 use pwhash::sha512_crypt;
 use security as sec;
+
+use utils;
 
 use schema::users;
 use models::*;
@@ -69,25 +71,66 @@ pub fn list_users(conn: &PgConnection) -> Vec<User> {
 /// one already. If so, no new ETA will be added. If none is
 /// found that isn't in the past OR one that is in the future from
 /// the provided ETA, it will be added
-pub fn add_new_eta(conn: &PgConnection, ) {
+///
+/// The string is expected in the format:
+///
+/// <year>-<month>-<day>-<hour>-<minute>
+pub fn add_new_eta(conn: &PgConnection, time: String) -> Option<String> {
+    use schema::space_etas::dsl::*;
+    let now = Utc::now();
+
+    let ts = match utils::parse_timestamp(time) {
+        Some(ts) => if ts < now {
+            return None;
+        } else {
+            ts
+        },
+        None => return None,
+    };
+
+    let latest_vec = space_etas
+        .order(id.desc())
+        .limit(1)
+        .load::<SpaceETA>(conn)
+        .expect("Failed to load user from database!");
+
+    let insertion = |t| {
+        let new_eta = NewSpaceETA { eta: t };
+        diesel::insert_into(space_etas)
+            .values(&new_eta)
+            .execute(conn)
+            .expect("Error creating new Afra space ETA!");
+        Some(utils::generate_timestamp(ts))
+    };
+
+    return match latest_vec.first() {
+        /* If the last known ETA is in the past, add it */
+        Some(ref e) => if e.eta < ts.naive_utc() {
+            insertion(ts.naive_utc())
+
+        /* Otherwise return the one that's newer */
+        } else {
+            Some(e.eta.format("%Y-%m-%d-%H-%M").to_string())
+        },
+
+        /* This means no ETA was found yet – create one */
+        _ => insertion(ts.naive_utc()),
+    };
+}
+
+pub fn get_current_eta(conn: &PgConnection) -> Option<String> {
     use schema::space_etas::dsl::*;
 
-    // let latest_vec = space_etas
-    //     .order(id.desc())
-    //     .limit(1)
-    //     .load::<SpaceETA>(conn)
-    //     .expect("Failed to load user from database!");
-    // match latest_vec.first() {
-    //     Some(ref e) => {
+    let latest_vec = space_etas
+        .order(id.desc())
+        .limit(1)
+        .load::<SpaceETA>(conn)
+        .expect("Failed to load user from database!");
 
-
-
-    //     }
-    //     _ => return,
-    // }
-
-
-    // let latest = space_etas.first().unwrap();
+    return match latest_vec.first() {
+        Some(ref e) => Some(e.eta.format("%Y-%m-%d-%H-%M").to_string()),
+        None => None,
+    };
 }
 
 /// Get the current state of the hackerspace

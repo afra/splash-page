@@ -16,7 +16,9 @@ extern crate rand;
 pub mod database;
 pub mod models;
 pub mod schema;
+pub mod utils;
 mod security;
 
 // Export some database stuff
 pub use database::*;
+pub use utils::*;
