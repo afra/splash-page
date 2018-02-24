@@ -7,6 +7,14 @@ table! {
 }
 
 table! {
+    space_etas (id) {
+        id -> Int4,
+        eta -> Timestamp,
+        created_at -> Timestamp,
+    }
+}
+
+table! {
     space_events (id) {
         id -> Int4,
         open -> Bool,

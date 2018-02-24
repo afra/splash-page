@@ -1,4 +1,4 @@
-use std::time::SystemTime;
+use chrono::NaiveDateTime;
 use schema::*;
 
 
@@ -36,11 +36,24 @@ pub struct NewSession<'a> {
 pub struct Event {
     pub id: i32,
     pub open: bool,
-    pub created_at: SystemTime,
+    pub created_at: NaiveDateTime,
 }
 
 #[derive(Insertable)]
 #[table_name = "space_events"]
 pub struct NewEvent {
     pub open: bool
+}
+
+#[derive(Queryable)]
+pub struct SpaceETA {
+    pub id: i32,
+    pub eta: NaiveDateTime,
+    pub created_at: NaiveDateTime,
+}
+
+#[derive(Insertable)]
+#[table_name = "space_etas"]
+pub struct NewSpaceETA {
+    pub eta: NaiveDateTime,
 }

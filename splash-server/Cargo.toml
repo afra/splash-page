@@ -22,10 +22,11 @@ pwhash = "^0.1.2"
 rand = "*"
 
 # Database
-diesel = { version = "1.1.0", features = ["postgres"] }
+diesel = { version = "1.1.0", features = ["postgres", "chrono"] }
 r2d2 = "0.8.2"
 r2d2-diesel = "1.0.0"
 
 # Environment and others
 dotenv = "0.10"
 structopt = "0.2"
+chrono = "0.4"

@@ -5,6 +5,7 @@ use r2d2;
 use diesel::pg::PgConnection;
 use diesel::BelongingToDsl;
 use r2d2_diesel::ConnectionManager;
+use chrono::NaiveDateTime;
 
 use constant_time_eq::constant_time_eq;
 
@@ -60,6 +61,33 @@ pub fn list_users(conn: &PgConnection) -> Vec<User> {
     return users
         .load::<User>(conn)
         .expect("Failed to load users from database!");
+}
+
+/// Adds a new ETA to the system
+///
+/// It checks if an ETA exists that is sooner than the provided
+/// one already. If so, no new ETA will be added. If none is
+/// found that isn't in the past OR one that is in the future from
+/// the provided ETA, it will be added
+pub fn add_new_eta(conn: &PgConnection, ) {
+    use schema::space_etas::dsl::*;
+
+    // let latest_vec = space_etas
+    //     .order(id.desc())
+    //     .limit(1)
+    //     .load::<SpaceETA>(conn)
+    //     .expect("Failed to load user from database!");
+    // match latest_vec.first() {
+    //     Some(ref e) => {
+
+
+
+    //     }
+    //     _ => return,
+    // }
+
+
+    // let latest = space_etas.first().unwrap();
 }
 
 /// Get the current state of the hackerspace

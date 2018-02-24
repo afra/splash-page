@@ -22,13 +22,11 @@ use r2d2_diesel::ConnectionManager;
 use rocket_contrib::Json;
 use rocket::http::Status;
 use rocket::request::{self, FromRequest};
-use rocket::{Outcome, Request, Response, State};
+use rocket::{Outcome, Request, State};
 use rocket::response::status::*;
 use rocket::response::Failure;
-
 use std::ops::Deref;
-use std::fs::File;
-use std::io::prelude::*;
+
 
 struct AuthUser(User);
 impl Deref for AuthUser {
@@ -49,6 +47,7 @@ impl<'a, 'r> FromRequest<'a, 'r> for AuthUser {
 
     fn from_request(request: &'a Request<'r>) -> request::Outcome<AuthUser, ()> {
         let db = request.guard::<Conn>()?;
+        println!("Pre-handling a request");
 
         let keys: Vec<_> = request.headers().get("Authorization").collect();
         if keys.len() != 1 {
@@ -75,11 +74,18 @@ fn login(user: Json<NewUserViewModel>, db: Conn) -> Result<String, Failure> {
     };
 }
 
-
 #[post("/api/v1/open", data = "<state>")]
-fn set_open(_user: AuthUser, state: Json<bool>, db: Conn) -> Custom<()> {
-    return match afra::create_new_event(&*db, *state.deref()) {
-        _ => Custom(Status::NoContent, ())
+fn set_open(_user: AuthUser,  db: Conn, state: String) -> Custom<()> {
+    println!("Provided state: {}", state);
+    return match afra::create_new_event(
+        &*db,
+        match state.as_str() {
+            "true" => true,
+            "false" => false,
+            _ => return Custom(Status::BadRequest, ()),
+        },
+    ) {
+        _ => Custom(Status::NoContent, ()),
     };
 }
 
@@ -88,13 +94,34 @@ fn get_open(db: Conn) -> String {
     return format!("{}", afra::get_current_state(&*db));
 }
 
+#[post("/api/v1/eta", data = "<eta>")]
+fn set_eta(_user: AuthUser,  db: Conn, eta: String) -> Custom<()> {
+    // println!("Provided state: {}", state);
+    // return match afra::create_new_event(
+    //     &*db,
+    //     match state.as_str() {
+    //         "true" => true,
+    //         "false" => false,
+    //         _ => return Custom(Status::BadRequest, ()),
+    //     },
+    // ) {
+    // };
+    return Custom(Status::NoContent, ());
+}
+
+
+#[get("/api/v1/eta")]
+fn get_eta(db: Conn) -> String {
+    return format!("{}", afra::get_current_state(&*db));
+}
+
 fn main() {
+
     // Assuming direct control...
     let c = afra::init_pool();
-    println!("Ping");
     rocket::ignite()
         .manage(c)
-        .mount("/", routes![login, set_open])
+        .mount("/", routes![login, set_open, get_open])
         .launch();
 }
 
