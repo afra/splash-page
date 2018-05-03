@@ -10,7 +10,8 @@ build_server:
     - cargo build --release
   artifacts:
     paths:
-      - splash-server/target/release/
+      - splash-server/target/release/create_user
+      - splash-server/target/release/run_server
 
 build_web:
   stage: build
