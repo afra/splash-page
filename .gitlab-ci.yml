@@ -2,6 +2,15 @@ stages:
   - build
   - publish
 
+build_server:
+  stage: build
+  image: rust
+  script:
+    - cargo build --release
+  artifacts:
+    paths:
+      - splash-server/target/release/
+
 build_web:
   stage: build
   image: node:9
