@@ -1,11 +1,11 @@
 use chrono::NaiveDateTime;
 use schema::*;
 
-
-#[derive(Queryable, Clone)]
+#[derive(Queryable, Clone, Debug)]
 pub struct User {
     pub id: i32,
     pub name: String,
+    pub has_key: bool,
     pub pw_hash: String,
     pub salt: String,
 }
@@ -48,6 +48,7 @@ pub struct NewEvent {
 #[derive(Queryable)]
 pub struct SpaceETA {
     pub id: i32,
+    pub user: i32,
     pub eta: NaiveDateTime,
     pub created_at: NaiveDateTime,
 }
@@ -55,5 +56,6 @@ pub struct SpaceETA {
 #[derive(Insertable)]
 #[table_name = "space_etas"]
 pub struct NewSpaceETA {
+    pub user: i32,
     pub eta: NaiveDateTime,
 }

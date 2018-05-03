@@ -9,6 +9,7 @@ table! {
 table! {
     space_etas (id) {
         id -> Int4,
+        user -> Int4,
         eta -> Timestamp,
         created_at -> Timestamp,
     }
@@ -26,6 +27,7 @@ table! {
     users (id) {
         id -> Int4,
         name -> Varchar,
+        has_key -> Bool,
         pw_hash -> Varchar,
         salt -> Varchar,
     }

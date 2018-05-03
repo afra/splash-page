@@ -1,13 +1,10 @@
 use diesel;
 use diesel::prelude::*;
 
-use r2d2;
 use diesel::pg::PgConnection;
-use diesel::BelongingToDsl;
-use r2d2_diesel::ConnectionManager;
+use {r2d2, r2d2_diesel::ConnectionManager};
 
 use constant_time_eq::constant_time_eq;
-use chrono::prelude::*;
 
 use dotenv::dotenv;
 use std::env;
@@ -17,8 +14,8 @@ use security as sec;
 
 use utils;
 
-use schema::users;
 use models::*;
+use schema::users;
 
 /// Our Sqlite connection pool 💦
 pub type Pool = r2d2::Pool<ConnectionManager<PgConnection>>;
@@ -65,67 +62,30 @@ pub fn list_users(conn: &PgConnection) -> Vec<User> {
         .expect("Failed to load users from database!");
 }
 
-/// Adds a new ETA to the system
-///
-/// It checks if an ETA exists that is sooner than the provided
-/// one already. If so, no new ETA will be added. If none is
-/// found that isn't in the past OR one that is in the future from
-/// the provided ETA, it will be added
-///
-/// The string is expected in the format:
-///
-/// <year>-<month>-<day>-<hour>-<minute>
-pub fn add_new_eta(conn: &PgConnection, time: String) -> Option<String> {
+/// Add a new ETA into the database and return the
+/// ID of the newly created ETA for future query
+pub fn add_new_eta(conn: &PgConnection, usr: &User, time: String) -> Option<usize> {
     use schema::space_etas::dsl::*;
-    let now = Utc::now();
 
-    let ts = match utils::parse_timestamp(time) {
-        Some(ts) => if ts < now {
-            return None;
-        } else {
-            ts
-        },
-        None => return None,
-    };
+    let ts = utils::parse_timestamp(time)?;
 
-    let latest_vec = space_etas
-        .order(id.desc())
-        .limit(1)
-        .load::<SpaceETA>(conn)
-        .expect("Failed to load user from database!");
-
-    let insertion = |t| {
-        let new_eta = NewSpaceETA { eta: t };
-        diesel::insert_into(space_etas)
-            .values(&new_eta)
-            .execute(conn)
-            .expect("Error creating new Afra space ETA!");
-        Some(utils::generate_timestamp(ts))
-    };
-
-    return match latest_vec.first() {
-        /* If the last known ETA is in the past, add it */
-        Some(ref e) => if e.eta < ts.naive_utc() {
-            insertion(ts.naive_utc())
-
-        /* Otherwise return the one that's newer */
-        } else {
-            Some(e.eta.format("%Y-%m-%d-%H-%M").to_string())
-        },
-
-        /* This means no ETA was found yet – create one */
-        _ => insertion(ts.naive_utc()),
-    };
+    return diesel::insert_into(space_etas)
+        .values(&NewSpaceETA {
+            user: usr.id,
+            eta: ts.naive_utc(),
+        })
+        .execute(conn)
+        .ok();
 }
 
-pub fn get_current_eta(conn: &PgConnection) -> Option<String> {
+pub fn get_latest_eta(conn: &PgConnection) -> Option<String> {
     use schema::space_etas::dsl::*;
 
     let latest_vec = space_etas
         .order(id.desc())
         .limit(1)
         .load::<SpaceETA>(conn)
-        .expect("Failed to load user from database!");
+        .ok()?;
 
     return match latest_vec.first() {
         Some(ref e) => Some(e.eta.format("%Y-%m-%d-%H-%M").to_string()),
@@ -136,42 +96,31 @@ pub fn get_current_eta(conn: &PgConnection) -> Option<String> {
 /// Get the current state of the hackerspace
 pub fn get_current_state(conn: &PgConnection) -> bool {
     use schema::space_events::dsl::*;
-    let latest_vec = space_events
+
+    return space_events
         .order(id.desc())
         .limit(1)
-        .load::<Event>(conn)
-        .expect("Failed to load user from database!");
-    let latest = latest_vec.first().unwrap();
-    return latest.open;
+        .first::<Event>(conn)
+        .map(|ev| ev.open)
+        .unwrap_or(false);
 }
 
 pub fn create_new_event(conn: &PgConnection, state: bool) -> Option<bool> {
     use schema::space_events::dsl::*;
 
-    /* Check what current state is */
-    let latest_vec = space_events
-        .order(id.desc())
-        .limit(1)
-        .load::<Event>(conn)
-        .expect("Failed to load user from database!");
-    let latest = latest_vec.first().unwrap();
-    if latest.open {
-        return None;
-    }
-
     let event = NewEvent { open: state };
     diesel::insert_into(space_events)
         .values(&event)
         .execute(conn)
-        .expect("Error creating new Afra space event!");
+        .ok()?;
     return Some(state);
 }
 
 pub fn get_user_with_token(conn: &PgConnection, token: String) -> Option<User> {
-    use schema::users::dsl::users;
-    use schema::users::dsl::id;
-    use schema::sessions::dsl::sessions;
     use schema::sessions::dsl::id as session_id;
+    use schema::sessions::dsl::sessions;
+    use schema::users::dsl::id;
+    use schema::users::dsl::users;
 
     let split = token.split("::").collect::<Vec<&str>>();
     if split.len() != 2 {
@@ -206,10 +155,10 @@ pub fn get_user_with_token(conn: &PgConnection, token: String) -> Option<User> {
 }
 
 pub fn maybe_login(conn: &PgConnection, username: &str, password: &str) -> Option<String> {
-    use schema::users::dsl::users;
-    use schema::users::dsl::name as user_name;
-    use schema::sessions::dsl::sessions;
     use schema::sessions::dsl::id as session_id;
+    use schema::sessions::dsl::sessions;
+    use schema::users::dsl::name as user_name;
+    use schema::users::dsl::users;
 
     let result = users
         .filter(user_name.eq(username))

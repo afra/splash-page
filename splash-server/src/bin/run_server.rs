@@ -2,12 +2,12 @@
 
 #![feature(plugin)]
 #![plugin(rocket_codegen)]
+extern crate chrono;
 extern crate diesel;
 extern crate r2d2;
 extern crate r2d2_diesel;
 extern crate rocket;
 extern crate rocket_contrib;
-extern crate chrono;
 
 extern crate serde;
 #[macro_use]
@@ -20,14 +20,13 @@ use afra::models::User;
 use diesel::pg::PgConnection;
 use r2d2_diesel::ConnectionManager;
 
-use rocket_contrib::Json;
 use rocket::http::Status;
 use rocket::request::{self, FromRequest};
-use rocket::{Outcome, Request, State};
 use rocket::response::status::*;
 use rocket::response::Failure;
+use rocket::{Outcome, Request, State};
+use rocket_contrib::Json;
 use std::ops::Deref;
-
 
 struct AuthUser(User);
 impl Deref for AuthUser {
@@ -76,7 +75,7 @@ fn login(user: Json<NewUserViewModel>, db: Conn) -> Result<String, Failure> {
 }
 
 #[post("/api/v1/open", data = "<state>")]
-fn set_open(_user: AuthUser,  db: Conn, state: String) -> Custom<()> {
+fn set_open(_user: AuthUser, db: Conn, state: String) -> Custom<()> {
     println!("Provided state: {}", state);
     return match afra::create_new_event(
         &*db,
@@ -96,20 +95,11 @@ fn get_open(db: Conn) -> String {
 }
 
 #[post("/api/v1/eta", data = "<eta>")]
-fn set_eta(_user: AuthUser,  db: Conn, eta: String) -> Custom<()> {
-    // println!("Provided state: {}", state);
-    // return match afra::create_new_event(
-    //     &*db,
-    //     match state.as_str() {
-    //         "true" => true,
-    //         "false" => false,
-    //         _ => return Custom(Status::BadRequest, ()),
-    //     },
-    // ) {
-    // };
-    return Custom(Status::NoContent, ());
+fn set_eta(user: AuthUser, db: Conn, eta: String) -> Custom<()> {
+    return match afra::add_new_eta(&*db, &*user, eta) {
+        _ => Custom(Status::NoContent, ()),
+    };
 }
-
 
 #[get("/api/v1/eta")]
 fn get_eta(db: Conn) -> String {

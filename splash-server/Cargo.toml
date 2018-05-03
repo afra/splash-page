@@ -2,7 +2,7 @@
 name = "splash-server"
 description = "A better webseite for the AfrA"
 version = "0.1.0"
-authors = ["Katharina Fey <kookie@spacekookie.de>"]
+authors = ["Katharina Fey <kookie@spacekookie.de>", "Lux <lux@lux.name>"]
 
 [dependencies]
 

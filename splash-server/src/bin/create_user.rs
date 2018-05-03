@@ -2,8 +2,6 @@ extern crate splash_server as afra;
 
 #[macro_use]
 extern crate structopt;
-
-use std::path::PathBuf;
 use structopt::StructOpt;
 
 #[derive(StructOpt, Debug)]
