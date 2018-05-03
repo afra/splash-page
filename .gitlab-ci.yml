@@ -16,6 +16,7 @@ build_web:
   stage: build
   image: node:9
   script:
+    - cd splash-web
     - yarn install --non-interactive
     - yarn run build
   artifacts:
