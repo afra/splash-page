@@ -6,6 +6,7 @@ build_server:
   stage: build
   image: rust
   script:
+    - cd splash-server
     - cargo build --release
   artifacts:
     paths:
