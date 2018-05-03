@@ -1,0 +1,25 @@
+stages:
+  - build
+  - publish
+
+build_web:
+  stage: build
+  image: node:9
+  script:
+    - yarn install --non-interactive
+    - yarn run build
+  artifacts:
+    paths:
+      - splash-web/dist
+
+deploy_image:
+  stage: publish
+  image: docker:git
+  services:
+  - docker:dind
+  script:
+    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN registry.gitlab.com
+    - docker build -t registry.gitlab.com/luxferresum/splash-page .
+    - docker push registry.gitlab.com/luxferresum/splash-page
+  only:
+    - master
