@@ -66,12 +66,18 @@ impl<'a, 'r> FromRequest<'a, 'r> for AuthUser {
     }
 }
 
+#[deprecated]
 #[post("/api/v1/login", data = "<user>")]
 fn login(user: Json<NewUserViewModel>, db: Conn) -> Result<String, Failure> {
     return match afra::maybe_login(&*db, &user.name, &user.password) {
         Some(id) => Ok(format!("{}", id)),
         None => Err(Failure::from(Status::Unauthorized)),
     };
+}
+
+#[post("/api/v1/oauth", data = "<code>")]
+fn verify_auth(code: String) {
+    ::afra::oauth::verify(code);
 }
 
 #[post("/api/v1/open", data = "<state>")]
