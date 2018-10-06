@@ -20,5 +20,9 @@ module.exports = function(defaults) {
 
   app.import('vendor/Beon/stylesheet.css')
 
-	return new MergeTrees([app.toTree(), sourceSansPro, beon]);
+  const md = Funnel('../content/', {
+    destDir: 'content/',
+  });
+
+	return new MergeTrees([app.toTree(), sourceSansPro, beon, md]);
 };
