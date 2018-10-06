@@ -14,11 +14,11 @@
 <main local-class="main">
   {{outlet}}
 </main>
-{{!--
+
 {{#if session.isAuthenticated}}
     Authenticated {{session.data.authenticated.authorizationCode}}
 {{else}}
     Unauthenticated
 {{/if}}
 
-<button onclick={{action 'login'}}>Login</button> --}}
+<button onclick={{action 'login'}}>Login</button>
