@@ -117,7 +117,7 @@ fn main() {
     let c = afra::init_pool();
     rocket::ignite()
         .manage(c)
-        .mount("/", routes![login, set_open, get_open])
+        .mount("/", routes![login, set_open, get_open, verify_auth])
         .launch();
 }
 
