@@ -61,3 +61,8 @@
   font-weight: 100;
   text-shadow: 1px 1px 5px #006eff, -1px -1px 5px #006eff;
 }
+
+.main {
+  color: white;
+  margin: 1rem;
+}
