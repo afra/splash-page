@@ -17,6 +17,16 @@ module.exports = function(environment) {
       }
     },
 
+    torii: {
+      providers: {
+        'github-oauth2': {
+          apiKey: 'a50e6dbc8ab81ca646ff',
+          // redirectUri: 'http://localhost:4200',
+          scope: 'afra'
+        }
+      }
+    },
+
     APP: {
       // Here you can pass flags/options to your application instance
       // when it is created
